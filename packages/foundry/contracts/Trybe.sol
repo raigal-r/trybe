@@ -6,26 +6,45 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Base64.sol";
 
-contract Trybe is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
+contract Trybe is
+    ERC1155,
+    Ownable,
+    ERC1155Burnable,
+    ERC1155Supply,
+    ERC1155URIStorage
+{
     using Strings for uint256;
 
-    mapping(uint256 => Word) private wordsToTokenId;
+    mapping(uint256 => Trybes) private wordsToTokenId;
     uint private fee = 0.05 ether;
 
-    struct Word {
-        string text;
-        string tribe;
+    enum Options {
+        POPULATION,
+        RESOURCES,
+        TECHNOLOGY
+    }
+
+    struct Stats {
+        uint pop_mod;
+        uint resources;
+        uint technology;
+    }
+
+    struct Trybes {
+        string name;
         uint256 bgHue;
         uint256 textHue;
+        Stats stats;
     }
 
     constructor(
         address initialOwner
-    ) ERC1155(unicode"Tribe 🔥") Ownable(initialOwner) {
-        mint(unicode"🔥", unicode"🔥");
+    ) ERC1155(unicode"Trybe 🔥") Ownable(initialOwner) {
+        mint(unicode"🔥");
     }
 
     function setURI(string memory newuri) public onlyOwner {
@@ -54,8 +73,7 @@ contract Trybe is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
         _mint(msg.sender, newTribe, 1, "");
     }
 
-    function mint(string memory _userText, string memory tribe) public payable {
-        require(bytes(_userText).length <= 120, "Text is too long");
+    function mint(string memory tribe) public payable {
         require(bytes(tribe).length <= 30, "Tribe is too long");
 
         if (msg.sender != owner()) {
@@ -69,24 +87,44 @@ contract Trybe is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
 
         uint256 newSupply = totalSupply() + 1;
 
-        Word memory newWord = Word(
-            _userText,
+        Stats memory newStats = Stats(randomHue(1), randomHue(2), randomHue(3));
+
+        Trybes memory newTrybe = Trybes(
             tribe,
             randomHue(1),
-            randomHue(2)
+            randomHue(2),
+            newStats
         );
 
-        wordsToTokenId[newSupply] = newWord;
+        wordsToTokenId[newSupply] = newTrybe;
 
         _mint(msg.sender, newSupply, 1, "");
     }
 
-    function tribeName(uint256 _tokenId) public view returns (string memory) {
+    function tribeStats(
+        uint256 _tokenId
+    ) public view returns (string[4] memory) {
         require(
             exists(_tokenId),
             "ERC1155Metadata: URI query for nonexistent token"
         );
-        return string(wordsToTokenId[_tokenId].tribe);
+
+        string[4] memory _stats;
+        Trybes memory tokenWord = wordsToTokenId[_tokenId];
+        _stats[0] = tokenWord.name;
+        _stats[1] = tokenWord.bgHue.toString();
+        _stats[2] = tokenWord.textHue.toString();
+        _stats[3] = string(
+            abi.encodePacked(
+                "Pop: ",
+                tokenWord.stats.pop_mod.toString(),
+                " Resources: ",
+                tokenWord.stats.resources.toString(),
+                " Technology: ",
+                tokenWord.stats.technology.toString()
+            )
+        );
+        return _stats;
     }
 
     function mintNew(uint256 _tokenId) public payable {
@@ -106,7 +144,6 @@ contract Trybe is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
     }
 
     function buildImage(
-        string memory _userText,
         string memory tribe,
         uint256 _bgHue,
         uint256 _textHue,
@@ -119,20 +156,58 @@ contract Trybe is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
                     '<rect height="100%" width="100%" y="0" x="0" fill="hsl(',
                     _bgHue.toString(),
                     ',50%,25%)"/>'
-                    '<text y="50%" x="50%" text-anchor="middle" dy=".3em" fill="hsl(',
+                    '<text y="50%" x="50%" text-anchor="middle" dy=".1em" fill="hsl(',
                     _textHue.toString(),
                     ',100%,80%)">',
-                    _userText,
-                    "</text>"
-                    '<text y="90%" x="50%" text-anchor="middle" dy=".1em" fill="hsl(',
-                    _textHue.toString(),
-                    ',100%,80%)">',
-                    "tribe ",
+                    "Trybe: \n",
                     tribe,
                     "population: ",
                     pop.toString(),
                     "</text>"
                     "</svg>"
+                )
+            );
+    }
+
+    function uri(
+        uint256 _tokenId
+    )
+        public
+        view
+        virtual
+        override(ERC1155, ERC1155URIStorage)
+        returns (string memory)
+    {
+        require(
+            exists(_tokenId),
+            "ERC1155Metadata: URI query for nonexistent token"
+        );
+
+        Trybes memory tokenWord = wordsToTokenId[_tokenId];
+        return
+            string(
+                bytes.concat(
+                    "data:application/json;base64,",
+                    Base64.encode(
+                        abi.encodePacked(
+                            "{"
+                            '"name":"',
+                            tokenWord.name,
+                            '",'
+                            '"description":"\'',
+                            bytes(tokenWord.name),
+                            "' Tribe by Nerds\","
+                            '"image":"data:image/svg+xml;base64,',
+                            buildImage(
+                                tokenWord.name,
+                                tokenWord.bgHue,
+                                tokenWord.textHue,
+                                totalSupply(_tokenId)
+                            ),
+                            '"'
+                            "}"
+                        )
+                    )
                 )
             );
     }
