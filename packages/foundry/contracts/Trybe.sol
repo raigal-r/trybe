@@ -199,7 +199,7 @@ contract Trybe is
                             "' Tribe by Nerds\","
                             '"image":"data:image/svg+xml;base64,',
                             buildImage(
-                                tokenWord.name,
+                                tribeStats(_tokenId)[3],
                                 tokenWord.bgHue,
                                 tokenWord.textHue,
                                 totalSupply(_tokenId)
