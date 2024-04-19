@@ -23,7 +23,7 @@ contract Tales is
     mapping(uint256 => Tale) private wordsToTokenId;
     uint private fee = 0.05 ether;
     //TODO: MAke it it into constructor variable
-    address public trybeContract = 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9;
+    address public trybeContract = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
 
     ITrybe Trybe = ITrybe(trybeContract);
 
@@ -47,7 +47,11 @@ contract Tales is
 
     constructor(
         address initialOwner
-    ) ERC1155(unicode"Trybe 🔥") Ownable(initialOwner) {
+    )
+        // address _trybeContract
+        ERC1155(unicode"Trybe 🔥")
+        Ownable(initialOwner)
+    {
         mint(unicode"🔥", 1);
     }
 
