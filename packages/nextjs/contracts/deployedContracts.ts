@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     Tales: {
-      address: "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+      address: "0xa513e6e4b8f2a923d98304ec87f64353c4d5c853",
       abi: [
         {
           type: "constructor",
@@ -19,19 +19,6 @@ const deployedContracts = {
             },
           ],
           stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "TRYBE",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
         },
         {
           type: "function",

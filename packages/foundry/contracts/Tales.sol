@@ -22,8 +22,10 @@ contract Tales is
 
     mapping(uint256 => Tale) private wordsToTokenId;
     uint private fee = 0.05 ether;
-    address public constant TRYBE = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
-    ITrybe Trybe = ITrybe(TRYBE);
+    //TODO: MAke it it into constructor variable
+    address public trybeContract = 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9;
+
+    ITrybe Trybe = ITrybe(trybeContract);
 
     enum Options {
         LOW,
@@ -46,7 +48,7 @@ contract Tales is
     constructor(
         address initialOwner
     ) ERC1155(unicode"Trybe 🔥") Ownable(initialOwner) {
-        //mint(unicode"🔥", 1);
+        mint(unicode"🔥", 1);
     }
 
     function setURI(string memory newuri) public onlyOwner {
