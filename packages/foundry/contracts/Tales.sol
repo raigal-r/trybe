@@ -9,8 +9,9 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Base64.sol";
+import "./ITrybe.sol";
 
-contract Trybe is
+contract Tales is
     ERC1155,
     Ownable,
     ERC1155Burnable,
@@ -19,8 +20,10 @@ contract Trybe is
 {
     using Strings for uint256;
 
-    mapping(uint256 => Trybes) private wordsToTokenId;
+    mapping(uint256 => Tale) private wordsToTokenId;
     uint private fee = 0.05 ether;
+    address public constant TRYBE = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+    ITrybe Trybe = ITrybe(TRYBE);
 
     enum Options {
         LOW,
@@ -34,17 +37,16 @@ contract Trybe is
         uint technology;
     }
 
-    struct Trybes {
+    struct Tale {
         string name;
         uint256 bgHue;
         uint256 textHue;
-        Stats stats;
     }
 
     constructor(
         address initialOwner
     ) ERC1155(unicode"Trybe 🔥") Ownable(initialOwner) {
-        mint(unicode"🔥");
+        //mint(unicode"🔥", 1);
     }
 
     function setURI(string memory newuri) public onlyOwner {
@@ -66,15 +68,12 @@ contract Trybe is
             ) % 361;
     }
 
-    function changeTribes(uint256 _tokenId, uint256 newTribe) public {
-        require(exists(newTribe), "Target Tribe not found");
-        require(balanceOf(msg.sender, _tokenId) >= 1);
-        _burn(msg.sender, _tokenId, 1);
-        _mint(msg.sender, newTribe, 1, "");
-    }
-
-    function mint(string memory tribe) public payable {
-        require(bytes(tribe).length <= 30, "Tribe is too long");
+    function mint(string memory _haiku, uint256 _id) public payable {
+        require(bytes(_haiku).length <= 120, "Haiku is too long");
+        require(
+            Trybe.isMember(msg.sender, _id),
+            "You are not a member of the Trybe"
+        );
 
         if (msg.sender != owner()) {
             require(
@@ -89,12 +88,7 @@ contract Trybe is
 
         Stats memory newStats = Stats(randomHue(1), randomHue(2), randomHue(3));
 
-        Trybes memory newTrybe = Trybes(
-            tribe,
-            randomHue(1),
-            randomHue(2),
-            newStats
-        );
+        Tale memory newTrybe = Tale(_haiku, randomHue(1), randomHue(2));
 
         wordsToTokenId[newSupply] = newTrybe;
 
@@ -110,28 +104,21 @@ contract Trybe is
         );
 
         string[4] memory _stats;
-        Trybes memory tokenWord = wordsToTokenId[_tokenId];
+        Tale memory tokenWord = wordsToTokenId[_tokenId];
         _stats[0] = tokenWord.name;
         _stats[1] = tokenWord.bgHue.toString();
         _stats[2] = tokenWord.textHue.toString();
         _stats[3] = string(
             abi.encodePacked(
                 "Pop: ",
-                tokenWord.stats.pop_mod.toString(),
+                //            tokenWord.stats.pop_mod.toString(),
                 " Resources: ",
-                tokenWord.stats.resources.toString(),
-                " Technology: ",
-                tokenWord.stats.technology.toString()
+                //            tokenWord.stats.resources.toString(),
+                " Technology: "
+                //          tokenWord.stats.technology.toString()
             )
         );
         return _stats;
-    }
-
-    function isMember(
-        address account,
-        uint256 _tokenId
-    ) external view returns (bool) {
-        return balanceOf(account, _tokenId) > 0;
     }
 
     function mintNew(uint256 _tokenId) public payable {
@@ -190,7 +177,7 @@ contract Trybe is
             "ERC1155Metadata: URI query for nonexistent token"
         );
 
-        Trybes memory tokenWord = wordsToTokenId[_tokenId];
+        Tale memory tokenWord = wordsToTokenId[_tokenId];
         return
             string(
                 bytes.concat(

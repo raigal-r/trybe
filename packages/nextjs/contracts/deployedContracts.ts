@@ -6,8 +6,8 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   31337: {
-    Trybe: {
-      address: "0xdc64a140aa3e981100a9beca4e685f962f0cf6c9",
+    Tales: {
+      address: "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
       abi: [
         {
           type: "constructor",
@@ -19,6 +19,19 @@ const deployedContracts = {
             },
           ],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "TRYBE",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "view",
         },
         {
           type: "function",
@@ -116,24 +129,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "changeTribes",
-          inputs: [
-            {
-              name: "_tokenId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-            {
-              name: "newTribe",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
           name: "exists",
           inputs: [
             {
@@ -193,9 +188,14 @@ const deployedContracts = {
           name: "mint",
           inputs: [
             {
-              name: "tribe",
+              name: "_haiku",
               type: "string",
               internalType: "string",
+            },
+            {
+              name: "_id",
+              type: "uint256",
+              internalType: "uint256",
             },
           ],
           outputs: [],
