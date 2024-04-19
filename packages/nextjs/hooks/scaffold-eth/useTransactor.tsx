@@ -1,13 +1,14 @@
-import { getPublicClient } from "@wagmi/core";
-import { Hash, SendTransactionParameters, WalletClient } from "viem";
+import { WriteContractResult, getPublicClient } from "@wagmi/core";
+import { Hash, SendTransactionParameters, TransactionReceipt, WalletClient } from "viem";
 import { useWalletClient } from "wagmi";
-import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { getBlockExplorerTxLink, getParsedError, notification } from "~~/utils/scaffold-eth";
-import { TransactorFuncOptions } from "~~/utils/scaffold-eth/contract";
 
 type TransactionFunc = (
-  tx: (() => Promise<Hash>) | SendTransactionParameters,
-  options?: TransactorFuncOptions,
+  tx: (() => Promise<WriteContractResult>) | (() => Promise<Hash>) | SendTransactionParameters,
+  options?: {
+    onBlockConfirmation?: (txnReceipt: TransactionReceipt) => void;
+    blockConfirmations?: number;
+  },
 ) => Promise<Hash | undefined>;
 
 /**
@@ -46,17 +47,21 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
     }
 
     let notificationId = null;
-    let transactionHash: Hash | undefined = undefined;
+    let transactionHash: Awaited<WriteContractResult>["hash"] | undefined = undefined;
     try {
       const network = await walletClient.getChainId();
       // Get full transaction from public client
-      const publicClient = getPublicClient(wagmiConfig);
+      const publicClient = getPublicClient();
 
       notificationId = notification.loading(<TxnNotification message="Awaiting for user confirmation" />);
       if (typeof tx === "function") {
         // Tx is already prepared by the caller
         const result = await tx();
-        transactionHash = result;
+        if (typeof result === "string") {
+          transactionHash = result;
+        } else {
+          transactionHash = result.hash;
+        }
       } else if (tx != null) {
         transactionHash = await walletClient.sendTransaction(tx);
       } else {

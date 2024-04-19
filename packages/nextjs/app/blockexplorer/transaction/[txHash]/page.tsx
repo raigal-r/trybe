@@ -25,7 +25,7 @@ const TransactionPage: NextPage<PageProps> = ({ params }: PageProps) => {
   const { targetNetwork } = useTargetNetwork();
 
   useEffect(() => {
-    if (txHash && client) {
+    if (txHash) {
       const fetchTransaction = async () => {
         const tx = await client.getTransaction({ hash: txHash });
         const receipt = await client.getTransactionReceipt({ hash: txHash });

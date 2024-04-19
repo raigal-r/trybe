@@ -5,7 +5,6 @@ import Link from "next/link";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Address as AddressType, getAddress, isAddress } from "viem";
 import { hardhat } from "viem/chains";
-import { normalize } from "viem/ens";
 import { useEnsAvatar, useEnsName } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
@@ -42,18 +41,14 @@ export const Address = ({ address, disableAddressLink, format, size = "base" }: 
 
   const { data: fetchedEns } = useEnsName({
     address: checkSumAddress,
+    enabled: isAddress(checkSumAddress ?? ""),
     chainId: 1,
-    query: {
-      enabled: isAddress(checkSumAddress ?? ""),
-    },
   });
   const { data: fetchedEnsAvatar } = useEnsAvatar({
-    name: fetchedEns ? normalize(fetchedEns) : undefined,
+    name: fetchedEns,
+    enabled: Boolean(fetchedEns),
     chainId: 1,
-    query: {
-      enabled: Boolean(fetchedEns),
-      gcTime: 30_000,
-    },
+    cacheTime: 30_000,
   });
 
   // We need to apply this pattern to avoid Hydration errors.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { PaginationButton, SearchBar, TransactionsTable } from "./_components";
 import type { NextPage } from "next";
 import { hardhat } from "viem/chains";
@@ -11,23 +11,24 @@ import { notification } from "~~/utils/scaffold-eth";
 const BlockExplorer: NextPage = () => {
   const { blocks, transactionReceipts, currentPage, totalBlocks, setCurrentPage, error } = useFetchBlocks();
   const { targetNetwork } = useTargetNetwork();
-  const [isLocalNetwork, setIsLocalNetwork] = useState(true);
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    if (targetNetwork.id !== hardhat.id) {
-      setIsLocalNetwork(false);
-    }
-  }, [targetNetwork.id]);
 
   useEffect(() => {
     if (targetNetwork.id === hardhat.id && error) {
-      setHasError(true);
+      notification.error(
+        <>
+          <p className="font-bold mt-0 mb-1">Cannot connect to local provider</p>
+          <p className="m-0">
+            - Did you forget to run <code className="italic bg-base-300 text-base font-bold">yarn chain</code> ?
+          </p>
+          <p className="mt-1 break-normal">
+            - Or you can change <code className="italic bg-base-300 text-base font-bold">targetNetwork</code> in{" "}
+            <code className="italic bg-base-300 text-base font-bold">scaffold.config.ts</code>
+          </p>
+        </>,
+      );
     }
-  }, [targetNetwork.id, error]);
 
-  useEffect(() => {
-    if (!isLocalNetwork) {
+    if (targetNetwork.id !== hardhat.id) {
       notification.error(
         <>
           <p className="font-bold mt-0 mb-1">
@@ -47,29 +48,7 @@ const BlockExplorer: NextPage = () => {
         </>,
       );
     }
-  }, [
-    isLocalNetwork,
-    targetNetwork.blockExplorers?.default.name,
-    targetNetwork.blockExplorers?.default.url,
-    targetNetwork.name,
-  ]);
-
-  useEffect(() => {
-    if (hasError) {
-      notification.error(
-        <>
-          <p className="font-bold mt-0 mb-1">Cannot connect to local provider</p>
-          <p className="m-0">
-            - Did you forget to run <code className="italic bg-base-300 text-base font-bold">yarn chain</code> ?
-          </p>
-          <p className="mt-1 break-normal">
-            - Or you can change <code className="italic bg-base-300 text-base font-bold">targetNetwork</code> in{" "}
-            <code className="italic bg-base-300 text-base font-bold">scaffold.config.ts</code>
-          </p>
-        </>,
-      );
-    }
-  }, [hasError]);
+  }, [error, targetNetwork]);
 
   return (
     <div className="container mx-auto my-10">

@@ -5,11 +5,10 @@ import { InheritanceTooltip } from "./InheritanceTooltip";
 import { displayTxResult } from "./utilsDisplay";
 import { Abi, AbiFunction } from "abitype";
 import { Address } from "viem";
-import { useReadContract } from "wagmi";
+import { useContractRead } from "wagmi";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useAnimationConfig } from "~~/hooks/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import { getParsedError, notification } from "~~/utils/scaffold-eth";
+import { notification } from "~~/utils/scaffold-eth";
 
 type DisplayVariableProps = {
   contractAddress: Address;
@@ -26,20 +25,16 @@ export const DisplayVariable = ({
   abi,
   inheritedFrom,
 }: DisplayVariableProps) => {
-  const { targetNetwork } = useTargetNetwork();
-
   const {
     data: result,
     isFetching,
     refetch,
-    error,
-  } = useReadContract({
+  } = useContractRead({
     address: contractAddress,
     functionName: abiFunction.name,
     abi: abi,
-    chainId: targetNetwork.id,
-    query: {
-      retry: false,
+    onError: error => {
+      notification.error(error.message);
     },
   });
 
@@ -48,13 +43,6 @@ export const DisplayVariable = ({
   useEffect(() => {
     refetch();
   }, [refetch, refreshDisplayVariables]);
-
-  useEffect(() => {
-    if (error) {
-      const parsedError = getParsedError(error);
-      notification.error(parsedError);
-    }
-  }, [error]);
 
   return (
     <div className="space-y-1 pb-2">
