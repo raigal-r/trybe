@@ -17,11 +17,6 @@ contract Trybe is
     ERC1155Supply,
     ERC1155URIStorage
 {
-    using Strings for uint256;
-
-    mapping(uint256 => Trybes) private wordsToTokenId;
-    uint private fee = 0.05 ether;
-
     enum Options {
         LOW,
         MEDIUM,
@@ -30,8 +25,8 @@ contract Trybe is
 
     struct Stats {
         uint pop_mod;
-        uint resources;
-        uint technology;
+        string resources;
+        string technology;
     }
 
     struct Trybes {
@@ -40,6 +35,10 @@ contract Trybe is
         uint256 textHue;
         Stats stats;
     }
+    using Strings for uint256;
+
+    mapping(uint256 => Trybes) private wordsToTokenId;
+    uint private fee = 0.05 ether;
 
     constructor(
         address initialOwner
@@ -51,7 +50,10 @@ contract Trybe is
         _setURI(newuri);
     }
 
-    function randomHue(uint8 _salt) private view returns (uint256) {
+    function randomHue(
+        uint8 _salt,
+        uint _spread
+    ) private view returns (uint256) {
         return
             uint256(
                 keccak256(
@@ -63,7 +65,7 @@ contract Trybe is
                         _salt
                     )
                 )
-            ) % 361;
+            ) % _spread;
     }
 
     function changeTribes(uint256 _tokenId, uint256 newTribe) public {
@@ -87,12 +89,16 @@ contract Trybe is
 
         uint256 newSupply = totalSupply() + 1;
 
-        Stats memory newStats = Stats(randomHue(1), randomHue(2), randomHue(3));
+        Stats memory newStats = Stats(
+            randomHue(1, 42),
+            returnState(randomHue(2, 3)),
+            returnState(randomHue(3, 3))
+        );
 
         Trybes memory newTrybe = Trybes(
             tribe,
-            randomHue(1),
-            randomHue(2),
+            randomHue(1, 361),
+            randomHue(2, 361),
             newStats
         );
 
@@ -116,12 +122,14 @@ contract Trybe is
         _stats[2] = tokenWord.textHue.toString();
         _stats[3] = string(
             abi.encodePacked(
+                "Trybe: ",
+                tokenWord.name,
                 "Pop: ",
-                tokenWord.stats.pop_mod.toString(),
+                (tokenWord.stats.pop_mod * totalSupply(_tokenId)).toString(),
                 " Resources: ",
-                tokenWord.stats.resources.toString(),
+                tokenWord.stats.resources,
                 " Technology: ",
-                tokenWord.stats.technology.toString()
+                tokenWord.stats.technology
             )
         );
         return _stats;
@@ -132,6 +140,13 @@ contract Trybe is
         uint256 _tokenId
     ) external view returns (bool) {
         return balanceOf(account, _tokenId) > 0;
+    }
+
+    function returnState(uint _id) public pure returns (string memory) {
+        if (Options(_id) == Options.LOW) return "Low";
+        if (Options(_id) == Options.MEDIUM) return "Medium";
+        if (Options(_id) == Options.HIGH) return "High";
+        return "";
     }
 
     function mintNew(uint256 _tokenId) public payable {
@@ -151,25 +166,21 @@ contract Trybe is
     }
 
     function buildImage(
-        string memory tribe,
+        string memory _tribe,
         uint256 _bgHue,
-        uint256 _textHue,
-        uint256 pop
+        uint256 _textHue
     ) private pure returns (bytes memory) {
         return
             Base64.encode(
                 abi.encodePacked(
-                    '<svg viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">'
+                    '<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">'
                     '<rect height="100%" width="100%" y="0" x="0" fill="hsl(',
                     _bgHue.toString(),
                     ',50%,25%)"/>'
                     '<text y="50%" x="50%" text-anchor="middle" dy=".1em" fill="hsl(',
                     _textHue.toString(),
                     ',100%,80%)">',
-                    "Trybe: \n",
-                    tribe,
-                    "population: ",
-                    pop.toString(),
+                    _tribe,
                     "</text>"
                     "</svg>"
                 )
@@ -208,8 +219,7 @@ contract Trybe is
                             buildImage(
                                 tribeStats(_tokenId)[3],
                                 tokenWord.bgHue,
-                                tokenWord.textHue,
-                                totalSupply(_tokenId)
+                                tokenWord.textHue
                             ),
                             '"'
                             "}"

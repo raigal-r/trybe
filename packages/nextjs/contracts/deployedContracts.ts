@@ -6,8 +6,8 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   31337: {
-    Tales: {
-      address: "0xdc64a140aa3e981100a9beca4e685f962f0cf6c9",
+    Trybe: {
+      address: "0x610178da211fef7d417bc0e6fed39f05609ad788",
       abi: [
         {
           type: "constructor",
@@ -116,6 +116,24 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "changeTribes",
+          inputs: [
+            {
+              name: "_tokenId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "newTribe",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
           name: "exists",
           inputs: [
             {
@@ -172,17 +190,36 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "isMember",
+          inputs: [
+            {
+              name: "account",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "_tokenId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "mint",
           inputs: [
             {
-              name: "_haiku",
+              name: "tribe",
               type: "string",
               internalType: "string",
-            },
-            {
-              name: "_id",
-              type: "uint256",
-              internalType: "uint256",
             },
           ],
           outputs: [],
@@ -248,6 +285,25 @@ const deployedContracts = {
           inputs: [],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "returnState",
+          inputs: [
+            {
+              name: "_id",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "string",
+              internalType: "string",
+            },
+          ],
+          stateMutability: "pure",
         },
         {
           type: "function",
@@ -438,19 +494,6 @@ const deployedContracts = {
               name: "",
               type: "string[4]",
               internalType: "string[4]",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "trybeContract",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
             },
           ],
           stateMutability: "view",

@@ -16,23 +16,23 @@ contract DeployScript is ScaffoldETHDeploy {
             );
         }
         vm.startBroadcast(deployerPrivateKey);
-        /*Trybe yourContract = new Trybe(vm.addr(deployerPrivateKey));
+        /**/ Trybe yourContract = new Trybe(vm.addr(deployerPrivateKey));
         console.logString(
             string.concat(
                 "YourContract deployed at: ",
                 vm.toString(address(yourContract))
             )
-        );*/
-        Tales talesContract = new Tales(
-            vm.addr(deployerPrivateKey)
-            //address(yourContract)
         );
+        /* Tales talesContract = new Tales(
+                vm.addr(deployerPrivateKey)
+                //address(yourContract)
+            );
         console.logString(
             string.concat(
                 "YourContract deployed at: ",
                 vm.toString(address(talesContract))
             )
-        );
+        ); /**/
         vm.stopBroadcast();
 
         /**

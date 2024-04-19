@@ -23,7 +23,7 @@ contract Tales is
     mapping(uint256 => Tale) private wordsToTokenId;
     uint private fee = 0.05 ether;
     //TODO: MAke it it into constructor variable
-    address public trybeContract = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+    address public trybeContract = 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9;
 
     ITrybe Trybe = ITrybe(trybeContract);
 
@@ -33,14 +33,9 @@ contract Tales is
         HIGH
     }
 
-    struct Stats {
-        uint pop_mod;
-        uint resources;
-        uint technology;
-    }
-
     struct Tale {
-        string name;
+        string haiku;
+        uint256 tribeId;
         uint256 bgHue;
         uint256 textHue;
     }
@@ -92,16 +87,14 @@ contract Tales is
 
         uint256 newSupply = totalSupply() + 1;
 
-        Stats memory newStats = Stats(randomHue(1), randomHue(2), randomHue(3));
-
-        Tale memory newTrybe = Tale(_haiku, randomHue(1), randomHue(2));
+        Tale memory newTrybe = Tale(_haiku, _id, randomHue(1), randomHue(2));
 
         wordsToTokenId[newSupply] = newTrybe;
 
         _mint(msg.sender, newSupply, 1, "");
     }
 
-    function tribeStats(
+    function taleStats(
         uint256 _tokenId
     ) public view returns (string[4] memory) {
         require(
@@ -111,7 +104,7 @@ contract Tales is
 
         string[4] memory _stats;
         Tale memory tokenWord = wordsToTokenId[_tokenId];
-        _stats[0] = tokenWord.name;
+        _stats[0] = tokenWord.haiku;
         _stats[1] = tokenWord.bgHue.toString();
         _stats[2] = tokenWord.textHue.toString();
         _stats[3] = string(
@@ -152,7 +145,7 @@ contract Tales is
         return
             Base64.encode(
                 abi.encodePacked(
-                    '<svg viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">'
+                    '<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">'
                     '<rect height="100%" width="100%" y="0" x="0" fill="hsl(',
                     _bgHue.toString(),
                     ',50%,25%)"/>'
@@ -192,14 +185,14 @@ contract Tales is
                         abi.encodePacked(
                             "{"
                             '"name":"',
-                            tokenWord.name,
+                            tokenWord.haiku,
                             '",'
                             '"description":"\'',
-                            bytes(tokenWord.name),
+                            bytes(tokenWord.haiku),
                             "' Trybe by Nerds\","
                             '"image":"data:image/svg+xml;base64,',
                             buildImage(
-                                tribeStats(_tokenId)[3],
+                                taleStats(_tokenId)[1],
                                 tokenWord.bgHue,
                                 tokenWord.textHue,
                                 totalSupply(_tokenId)
