@@ -73,20 +73,21 @@ const frameHandler = frames(async ctx => {
       </div>
     ), // foo: bar
     buttons: [
-      <Button action="tx" target="/txdata" post_url="/tx-success">
-        Mint HaiKU!
+      <Button action="post" target={{ pathname: "/loading", query: { id: ctx.message?.requesterFid } }}>
+        Submit
       </Button>,
       <Button action="post" target={{ pathname: "/display", query: { id: ctx.searchParams.id, count: index } }}>
-        Next
+        Refresh
       </Button>,
       <Button action="post" target={{ pathname: "/display", query: { id: ctx.searchParams.id, count: index - 2 } }}>
-        Prev
+        Submit
       </Button>,
-      <Button action="post" target="/">
-        Home
+      <Button action="tx" target="/txdata" post_url="/tx-success">
+        Mint Tale!
       </Button>,
     ],
     state: newState,
+    textInput: "Trybe something",
   };
 });
 

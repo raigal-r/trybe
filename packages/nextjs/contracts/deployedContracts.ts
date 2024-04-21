@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     Trybe: {
-      address: "0xb7f8bc63bbcad18155201308c8f3540b07f84f5e",
+      address: "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9",
       abi: [
         {
           type: "constructor",
@@ -222,7 +222,13 @@ const deployedContracts = {
               internalType: "string",
             },
           ],
-          outputs: [],
+          outputs: [
+            {
+              name: "_id",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
           stateMutability: "payable",
         },
         {

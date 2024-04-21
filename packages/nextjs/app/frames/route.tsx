@@ -45,7 +45,7 @@ const frameHandler = frames(async () => {
 
     buttons: [
       // With query params
-      <Button action="post" target="/charSelect">
+      <Button action="post" target="/submit">
         Submit
       </Button>,
     ],

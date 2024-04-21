@@ -44,7 +44,7 @@ export const POST = frames(async ctx => {
       </div>
     ),
     buttons: [
-      <Button action="post" target={{ pathname: "/loading", query: { id: ctx.message?.requesterFid } }}>
+      <Button action="post" target={{ pathname: "/mint", query: { id: ctx.message?.requesterFid } }}>
         New Journey
       </Button>,
 
@@ -52,6 +52,5 @@ export const POST = frames(async ctx => {
         Continue
       </Button>,
     ],
-    textInput: "stuff",
   };
 });

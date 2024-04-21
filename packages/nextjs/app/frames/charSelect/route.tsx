@@ -50,7 +50,6 @@ const frameHandler = frames(async ctx => {
 
     buttons: [
       // With query params
-
       <Button action="tx" target="/txdata" post_url="/tx-success">
         New Journey
       </Button>,
